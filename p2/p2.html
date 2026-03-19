@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobador de Palíndromos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 300;
+            font-size: 2.5rem;
+        }
+        p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            outline: none;
+            transition: border 0.3s;
+            margin-bottom: 20px;
+        }
+        input[type="text"]:focus {
+            border-color: #6c5ce7;
+        }
+        button {
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
+        }
+        button:hover {
+            background: #5b4bc4;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .result {
+            margin-top: 30px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        .result.palindrome {
+            background: #d4edda;
+            color: #155724;
+        }
+        .result.not-palindrome {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .info {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>¿Palíndromo?</h1>
+        <p>Ingresa una palabra o frase y te diré si se lee igual al derecho y al revés (ignorando espacios, signos y mayúsculas).</p>
+        <input type="text" id="textInput" placeholder="Ejemplo: Anita lava la tina" autofocus>
+        <button id="checkBtn">Comprobar</button>
+        <div class="result" id="result">Esperando entrada...</div>
+        <div class="info">Nota: Se ignoran espacios, signos de puntuación y diferencias entre mayúsculas/minúsculas. Las tildes se consideran (á ≠ a).</div>
+    </div>
+
+    <script>
+        const input = document.getElementById('textInput');
+        const button = document.getElementById('checkBtn');
+        const resultDiv = document.getElementById('result');
+
+        function esPalindromo(texto) {
+            // Eliminar caracteres que no sean letras o números y pasar a minúsculas
+            const limpio = texto.toLowerCase().replace(/[^a-z0-9áéíóúüñ]/g, '');
+            // Comparar con su reverso
+            const reverso = limpio.split('').reverse().join('');
+            return limpio === reverso;
+        }
+
+        function comprobar() {
+            const texto = input.value.trim();
+            if (texto === '') {
+                resultDiv.textContent = 'Por favor, ingresa algún texto.';
+                resultDiv.className = 'result not-palindrome'; // Usamos estilo de error
+                return;
+            }
+            const palindrome = esPalindromo(texto);
+            if (palindrome) {
+                resultDiv.textContent = '¡Sí, es un palíndromo!';
+                resultDiv.className = 'result palindrome';
+            } else {
+                resultDiv.textContent = 'No, no es un palíndromo.';
+                resultDiv.className = 'result not-palindrome';
+            }
+        }
+
+        button.addEventListener('click', comprobar);
+        // También comprobar al presionar Enter
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                comprobar();
+            }
+        });
+    </script>
+</body>
+</html>

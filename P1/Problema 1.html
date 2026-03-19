@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador con reinicio de clics</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        h1 {
+            margin-top: 0;
+            color: #333;
+            font-weight: 300;
+            font-size: 2rem;
+        }
+        .main-counter {
+            font-size: 5rem;
+            font-weight: bold;
+            color: #4a5568;
+            margin: 1rem 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .click-counters {
+            display: flex;
+            justify-content: space-around;
+            margin: 2rem 0;
+            gap: 1rem;
+        }
+        .click-box {
+            background: #f7fafc;
+            padding: 0.8rem;
+            border-radius: 12px;
+            flex: 1;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+        }
+        .click-box span {
+            display: block;
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 0.3rem;
+        }
+        .click-box .number {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            font-size: 2rem;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        button:hover {
+            background: #5a67d8;
+            transform: scale(1.05);
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        button.decrement {
+            background: #e53e3e;
+        }
+        button.decrement:hover {
+            background: #c53030;
+        }
+        .footer {
+            margin-top: 2rem;
+            color: #a0aec0;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Contador</h1>
+        <div class="main-counter" id="mainCount">0</div>
+        
+        <div class="click-counters">
+            <div class="click-box">
+                <span>⬆️ Incrementos</span>
+                <div class="number" id="incrementClicks">0</div>
+            </div>
+            <div class="click-box">
+                <span>⬇️ Decrementos</span>
+                <div class="number" id="decrementClicks">0</div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="decrement" id="decrementBtn">−</button>
+            <button id="incrementBtn">+</button>
+        </div>
+        <div class="footer">
+            Los contadores de clics se reinician al llegar a 10
+        </div>
+    </div>
+
+    <script>
+        // Estado inicial
+        let mainCounter = 0;
+        let incClicks = 0;
+        let decClicks = 0;
+
+        // Elementos del DOM
+        const mainCountEl = document.getElementById('mainCount');
+        const incClicksEl = document.getElementById('incrementClicks');
+        const decClicksEl = document.getElementById('decrementClicks');
+        const incBtn = document.getElementById('incrementBtn');
+        const decBtn = document.getElementById('decrementBtn');
+
+        // Función para actualizar la interfaz
+        function updateDisplay() {
+            mainCountEl.textContent = mainCounter;
+            incClicksEl.textContent = incClicks;
+            decClicksEl.textContent = decClicks;
+        }
+
+        // Evento para incrementar
+        incBtn.addEventListener('click', () => {
+            mainCounter++;
+            incClicks++;
+            if (incClicks === 10) {
+                incClicks = 0;
+            }
+            updateDisplay();
+        });
+
+        // Evento para decrementar
+        decBtn.addEventListener('click', () => {
+            mainCounter--;
+            decClicks++;
+            if (decClicks === 10) {
+                decClicks = 0;
+            }
+            updateDisplay();
+        });
+
+        // Inicializar display
+        updateDisplay();
+    </script>
+</body>
+</html>

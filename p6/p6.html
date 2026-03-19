@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Empleados</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Formulario */
+        .form-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-title {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input.error {
+            border-color: #e53e3e;
+        }
+
+        .error-message {
+            color: #e53e3e;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            min-height: 20px;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background: #5a67d8;
+        }
+
+        .btn-danger {
+            background: #e53e3e;
+        }
+
+        .btn-danger:hover {
+            background: #c53030;
+        }
+
+        /* Lista de empleados */
+        .employee-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .employee-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .employee-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .employee-header {
+            height: 150px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .employee-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid white;
+            object-fit: cover;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .employee-info {
+            padding: 20px;
+        }
+
+        .employee-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .employee-detail {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .employee-detail i {
+            width: 20px;
+            margin-right: 10px;
+            color: #667eea;
+            font-style: normal;
+        }
+
+        .employee-actions {
+            display: flex;
+            justify-content: flex-end;
+            padding: 15px 20px;
+            background: #f9f9f9;
+            border-top: 1px solid #eee;
+        }
+
+        .employee-actions button {
+            padding: 8px 15px;
+            font-size: 0.9rem;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            color: #666;
+            font-size: 1.2rem;
+            grid-column: 1 / -1;
+        }
+
+        /* Utilidades */
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-2 {
+            margin-top: 10px;
+        }
+
+        /* Iconos simulados con caracteres */
+        .icon::before {
+            font-family: 'Segoe UI', sans-serif;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>👥 Gestión de Empleados</h1>
+
+        <!-- Formulario para agregar empleado -->
+        <div class="form-card">
+            <div class="form-title">➕ Agregar nuevo empleado</div>
+            <form id="employeeForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nombre">Nombre *</label>
+                        <input type="text" id="nombre" placeholder="Ej: Juan">
+                        <div class="error-message" id="errorNombre"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="apellido">Apellido *</label>
+                        <input type="text" id="apellido" placeholder="Ej: Pérez">
+                        <div class="error-message" id="errorApellido"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Correo electrónico *</label>
+                        <input type="email" id="email" placeholder="ejemplo@correo.com">
+                        <div class="error-message" id="errorEmail"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono *</label>
+                        <input type="tel" id="telefono" placeholder="Ej: +34 600 123 456">
+                        <div class="error-message" id="errorTelefono"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="salario">Salario * (€)</label>
+                        <input type="number" id="salario" placeholder="Ej: 25000" min="0" step="0.01">
+                        <div class="error-message" id="errorSalario"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaNacimiento">Fecha de nacimiento *</label>
+                        <input type="date" id="fechaNacimiento">
+                        <div class="error-message" id="errorFecha"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="imagen">URL de imagen (opcional)</label>
+                        <input type="url" id="imagen" placeholder="https://ejemplo.com/foto.jpg">
+                        <div class="error-message" id="errorImagen"></div>
+                    </div>
+                </div>
+                <div class="text-center mt-2">
+                    <button type="submit" class="btn">Agregar empleado</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Lista de empleados -->
+        <div id="employeeList" class="employee-grid">
+            <!-- Los empleados se cargarán aquí dinámicamente -->
+        </div>
+    </div>
+
+    <script>
+        // Array para almacenar los empleados (simula base de datos)
+        let empleados = [];
+
+        // Cargar empleados iniciales (ejemplo)
+        function cargarEmpleadosIniciales() {
+            empleados = [
+                {
+                    id: 1,
+                    nombre: 'Ana',
+                    apellido: 'García',
+                    email: 'ana.garcia@ejemplo.com',
+                    telefono: '+34 611 222 333',
+                    salario: 32000,
+                    fechaNacimiento: '1990-05-15',
+                    imagen: 'https://randomuser.me/api/portraits/women/44.jpg'
+                },
+                {
+                    id: 2,
+                    nombre: 'Carlos',
+                    apellido: 'López',
+                    email: 'carlos.lopez@ejemplo.com',
+                    telefono: '+34 622 333 444',
+                    salario: 28000,
+                    fechaNacimiento: '1985-08-22',
+                    imagen: 'https://randomuser.me/api/portraits/men/32.jpg'
+                }
+            ];
+        }
+
+        // Función para renderizar los empleados en el DOM
+        function renderizarEmpleados() {
+            const lista = document.getElementById('employeeList');
+
+            if (empleados.length === 0) {
+                lista.innerHTML = '<div class="empty-message">No hay empleados registrados. ¡Agrega uno!</div>';
+                return;
+            }
+
+            let html = '';
+            empleados.forEach(emp => {
+                // Calcular edad a partir de fecha de nacimiento
+                const edad = calcularEdad(emp.fechaNacimiento);
+
+                // Formatear salario
+                const salarioFormateado = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(emp.salario);
+
+                html += `
+                    <div class="employee-card" data-id="${emp.id}">
+                        <div class="employee-header">
+                            <img src="${emp.imagen || 'https://via.placeholder.com/100?text=Sin+foto'}" 
+                                 alt="${emp.nombre} ${emp.apellido}" 
+                                 class="employee-avatar"
+                                 onerror="this.src='https://via.placeholder.com/100?text=Error'">
+                        </div>
+                        <div class="employee-info">
+                            <div class="employee-name">${emp.nombre} ${emp.apellido}</div>
+                            <div class="employee-detail"><i>📧</i> ${emp.email}</div>
+                            <div class="employee-detail"><i>📞</i> ${emp.telefono}</div>
+                            <div class="employee-detail"><i>💰</i> ${salarioFormateado}</div>
+                            <div class="employee-detail"><i>🎂</i> ${emp.fechaNacimiento} (${edad} años)</div>
+                        </div>
+                        <div class="employee-actions">
+                            <button class="btn btn-danger btn-eliminar" data-id="${emp.id}">Eliminar</button>
+                        </div>
+                    </div>
+                `;
+            });
+            lista.innerHTML = html;
+
+            // Agregar eventos a los botones eliminar
+            document.querySelectorAll('.btn-eliminar').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = parseInt(e.target.dataset.id);
+                    eliminarEmpleado(id);
+                });
+            });
+        }
+
+        // Función para calcular edad
+        function calcularEdad(fechaNacimiento) {
+            const hoy = new Date();
+            const nacimiento = new Date(fechaNacimiento);
+            let edad = hoy.getFullYear() - nacimiento.getFullYear();
+            const mes = hoy.getMonth() - nacimiento.getMonth();
+            if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+                edad--;
+            }
+            return edad;
+        }
+
+        // Función para eliminar empleado
+        function eliminarEmpleado(id) {
+            if (confirm('¿Estás seguro de eliminar este empleado?')) {
+                empleados = empleados.filter(emp => emp.id !== id);
+                renderizarEmpleados();
+            }
+        }
+
+        // Función de validación del formulario
+        function validarFormulario(event) {
+            event.preventDefault();
+
+            let valido = true;
+
+            // Limpiar mensajes de error previos
+            document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+            document.querySelectorAll('.form-group input').forEach(el => el.classList.remove('error'));
+
+            // Obtener valores
+            const nombre = document.getElementById('nombre').value.trim();
+            const apellido = document.getElementById('apellido').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const telefono = document.getElementById('telefono').value.trim();
+            const salario = document.getElementById('salario').value.trim();
+            const fechaNacimiento = document.getElementById('fechaNacimiento').value;
+            const imagen = document.getElementById('imagen').value.trim();
+
+            // Validar nombre
+            if (!nombre) {
+                document.getElementById('errorNombre').textContent = 'El nombre es obligatorio';
+                document.getElementById('nombre').classList.add('error');
+                valido = false;
+            } else if (nombre.length < 2) {
+                document.getElementById('errorNombre').textContent = 'El nombre debe tener al menos 2 caracteres';
+                document.getElementById('nombre').classList.add('error');
+                valido = false;
+            }
+
+            // Validar apellido
+            if (!apellido) {
+                document.getElementById('errorApellido').textContent = 'El apellido es obligatorio';
+                document.getElementById('apellido').classList.add('error');
+                valido = false;
+            } else if (apellido.length < 2) {
+                document.getElementById('errorApellido').textContent = 'El apellido debe tener al menos 2 caracteres';
+                document.getElementById('apellido').classList.add('error');
+                valido = false;
+            }
+
+            // Validar email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email) {
+                document.getElementById('errorEmail').textContent = 'El correo es obligatorio';
+                document.getElementById('email').classList.add('error');
+                valido = false;
+            } else if (!emailRegex.test(email)) {
+                document.getElementById('errorEmail').textContent = 'Ingresa un correo válido';
+                document.getElementById('email').classList.add('error');
+                valido = false;
+            }
+
+            // Validar teléfono (simple, al menos 9 dígitos)
+            const telefonoRegex = /^[+]?[\d\s-]{9,}$/;
+            if (!telefono) {
+                document.getElementById('errorTelefono').textContent = 'El teléfono es obligatorio';
+                document.getElementById('telefono').classList.add('error');
+                valido = false;
+            } else if (!telefonoRegex.test(telefono)) {
+                document.getElementById('errorTelefono').textContent = 'Ingresa un teléfono válido (mínimo 9 dígitos)';
+                document.getElementById('telefono').classList.add('error');
+                valido = false;
+            }
+
+            // Validar salario
+            if (!salario) {
+                document.getElementById('errorSalario').textContent = 'El salario es obligatorio';
+                document.getElementById('salario').classList.add('error');
+                valido = false;
+            } else if (isNaN(salario) || parseFloat(salario) <= 0) {
+                document.getElementById('errorSalario').textContent = 'Ingresa un salario válido (mayor a 0)';
+                document.getElementById('salario').classList.add('error');
+                valido = false;
+            }
+
+            // Validar fecha de nacimiento
+            if (!fechaNacimiento) {
+                document.getElementById('errorFecha').textContent = 'La fecha de nacimiento es obligatoria';
+                document.getElementById('fechaNacimiento').classList.add('error');
+                valido = false;
+            } else {
+                const fecha = new Date(fechaNacimiento);
+                const hoy = new Date();
+                if (fecha > hoy) {
+                    document.getElementById('errorFecha').textContent = 'La fecha no puede ser futura';
+                    document.getElementById('fechaNacimiento').classList.add('error');
+                    valido = false;
+                }
+            }
+
+            // Validar imagen (si se proporciona, debe ser URL válida)
+            if (imagen) {
+                try {
+                    new URL(imagen);
+                } catch (_) {
+                    document.getElementById('errorImagen').textContent = 'Ingresa una URL válida';
+                    document.getElementById('imagen').classList.add('error');
+                    valido = false;
+                }
+            }
+
+            if (valido) {
+                // Crear nuevo empleado
+                const nuevoEmpleado = {
+                    id: Date.now(), // ID único basado en timestamp
+                    nombre: nombre,
+                    apellido: apellido,
+                    email: email,
+                    telefono: telefono,
+                    salario: parseFloat(salario),
+                    fechaNacimiento: fechaNacimiento,
+                    imagen: imagen || '' // Si no hay imagen, string vacío
+                };
+
+                empleados.push(nuevoEmpleado);
+                renderizarEmpleados();
+
+                // Limpiar formulario
+                document.getElementById('employeeForm').reset();
+            }
+
+            return valido;
+        }
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarEmpleadosIniciales();
+            renderizarEmpleados();
+
+            // Configurar evento de envío del formulario
+            document.getElementById('employeeForm').addEventListener('submit', validarFormulario);
+        });
+    </script>
+</body>
+
+</html>

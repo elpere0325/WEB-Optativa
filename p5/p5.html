@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla CRUD con filtros y orden</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f9;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-weight: 400;
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #34495e;
+        }
+
+        .form-panel {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .form-group {
+            flex: 1 1 200px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+        }
+
+        .btn {
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background-color: #3182ce;
+        }
+
+        .btn-secondary {
+            background-color: #a0aec0;
+        }
+
+        .btn-secondary:hover {
+            background-color: #718096;
+        }
+
+        .btn-warning {
+            background-color: #ecc94b;
+            color: #2d3748;
+        }
+
+        .btn-warning:hover {
+            background-color: #d69e2e;
+        }
+
+        .btn-danger {
+            background-color: #f56565;
+        }
+
+        .btn-danger:hover {
+            background-color: #e53e3e;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group label {
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            min-width: 180px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background-color: #f7fafc;
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #2d3748;
+            border-bottom: 2px solid #e2e8f0;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        th:hover {
+            background-color: #edf2f7;
+        }
+
+        th.asc::after {
+            content: " ▲";
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        th.desc::after {
+            content: " ▼";
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #2d3748;
+        }
+
+        tr:hover td {
+            background-color: #f7fafc;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-icon {
+            padding: 5px 12px;
+            font-size: 0.9rem;
+            border-radius: 4px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 30px;
+            color: #718096;
+            font-style: italic;
+        }
+
+        .btn-cancel {
+            background-color: #cbd5e0;
+            color: #1a202c;
+        }
+
+        .btn-cancel:hover {
+            background-color: #a0aec0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📋 Gestor de Elementos</h1>
+
+        <!-- Panel de formulario para agregar/editar -->
+        <div class="form-panel">
+            <h2 id="formTitle">➕ Agregar nuevo elemento</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" placeholder="Ej: iPhone">
+                </div>
+                <div class="form-group">
+                    <label for="categoria">Categoría</label>
+                    <input type="text" id="categoria" placeholder="Ej: Teléfono">
+                </div>
+                <div class="form-group">
+                    <label for="anio">Año de lanzamiento</label>
+                    <input type="number" id="anio" placeholder="Ej: 2007" min="1900" max="2100">
+                </div>
+                <div class="form-group" style="display: flex; gap: 10px;">
+                    <button class="btn" id="btnAgregar">Agregar</button>
+                    <button class="btn btn-cancel" id="btnCancelar" style="display: none;">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de filtros -->
+        <div class="filters">
+            <div class="filter-group">
+                <label for="buscar">🔍 Buscar:</label>
+                <input type="text" id="buscar" placeholder="Nombre o categoría...">
+            </div>
+            <div class="filter-group">
+                <label for="filtroAnio">📅 Año:</label>
+                <select id="filtroAnio">
+                    <option value="todos">Todos</option>
+                </select>
+            </div>
+            <button class="btn btn-secondary" id="btnLimpiarFiltros">Limpiar filtros</button>
+        </div>
+
+        <!-- Tabla de datos -->
+        <div class="table-container">
+            <table id="tabla">
+                <thead>
+                    <tr>
+                        <th data-columna="nombre">Nombre</th>
+                        <th data-columna="categoria">Categoría</th>
+                        <th data-columna="anio">Año</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaBody">
+                    <!-- Se llena dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // --- Datos iniciales (simulando una base de datos) ---
+        let datos = [
+            { id: 1, nombre: "iPhone", categoria: "Teléfono", anio: 2007 },
+            { id: 2, nombre: "MacBook Air", categoria: "Portátil", anio: 2008 },
+            { id: 3, nombre: "iPad", categoria: "Tablet", anio: 2010 },
+            { id: 4, nombre: "Apple Watch", categoria: "Reloj", anio: 2015 },
+            { id: 5, nombre: "AirPods", categoria: "Audio", anio: 2016 },
+            { id: 6, nombre: "iMac", categoria: "Ordenador", anio: 1998 },
+            { id: 7, nombre: "Mac mini", categoria: "Ordenador", anio: 2005 },
+            { id: 8, nombre: "HomePod", categoria: "Audio", anio: 2018 },
+            { id: 9, nombre: "Apple TV", categoria: "Multimedia", anio: 2007 },
+            { id: 10, nombre: "Vision Pro", categoria: "Gafas", anio: 2024 }
+        ];
+
+        // --- Estado de ordenación y filtros ---
+        let columnaOrden = 'nombre';      // columna activa
+        let direccionOrden = 'asc';       // 'asc' o 'desc'
+        let filtroTexto = '';              // texto de búsqueda
+        let filtroAnio = 'todos';          // año seleccionado o 'todos'
+
+        // --- Estado de edición ---
+        let editandoId = null;              // id del elemento que se está editando
+
+        // --- Referencias a elementos del DOM ---
+        const tablaBody = document.getElementById('tablaBody');
+        const inputNombre = document.getElementById('nombre');
+        const inputCategoria = document.getElementById('categoria');
+        const inputAnio = document.getElementById('anio');
+        const btnAgregar = document.getElementById('btnAgregar');
+        const btnCancelar = document.getElementById('btnCancelar');
+        const formTitle = document.getElementById('formTitle');
+        const buscarInput = document.getElementById('buscar');
+        const filtroAnioSelect = document.getElementById('filtroAnio');
+        const btnLimpiarFiltros = document.getElementById('btnLimpiarFiltros');
+        const ths = document.querySelectorAll('th[data-columna]');
+
+        // --- Función para llenar el select de años con valores únicos de los datos ---
+        function actualizarSelectAnios() {
+            const años = [...new Set(datos.map(item => item.anio))].sort((a, b) => a - b);
+            filtroAnioSelect.innerHTML = '<option value="todos">Todos</option>';
+            años.forEach(año => {
+                const option = document.createElement('option');
+                option.value = año;
+                option.textContent = año;
+                filtroAnioSelect.appendChild(option);
+            });
+            // Restaurar selección previa
+            filtroAnioSelect.value = filtroAnio;
+        }
+
+        // --- Función para obtener datos filtrados y ordenados ---
+        function obtenerDatosFiltradosYOrdenados() {
+            // Aplicar filtros
+            let datosFiltrados = datos.filter(item => {
+                // Filtro por texto (nombre o categoría)
+                const coincideTexto = filtroTexto === '' ||
+                    item.nombre.toLowerCase().includes(filtroTexto.toLowerCase()) ||
+                    item.categoria.toLowerCase().includes(filtroTexto.toLowerCase());
+                // Filtro por año
+                const coincideAnio = filtroAnio === 'todos' || item.anio === parseInt(filtroAnio);
+                return coincideTexto && coincideAnio;
+            });
+
+            // Aplicar ordenación
+            datosFiltrados.sort((a, b) => {
+                let valorA = a[columnaOrden];
+                let valorB = b[columnaOrden];
+                // Manejar números y texto
+                if (typeof valorA === 'string') {
+                    valorA = valorA.toLowerCase();
+                    valorB = valorB.toLowerCase();
+                }
+                if (valorA < valorB) return direccionOrden === 'asc' ? -1 : 1;
+                if (valorA > valorB) return direccionOrden === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            return datosFiltrados;
+        }
+
+        // --- Función para renderizar la tabla ---
+        function renderizarTabla() {
+            const datosFiltrados = obtenerDatosFiltradosYOrdenados();
+            if (datosFiltrados.length === 0) {
+                tablaBody.innerHTML = `<tr><td colspan="4" class="no-data">No hay elementos que coincidan</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            datosFiltrados.forEach(item => {
+                html += `
+                    <tr data-id="${item.id}">
+                        <td>${item.nombre}</td>
+                        <td>${item.categoria}</td>
+                        <td>${item.anio}</td>
+                        <td class="actions">
+                            <button class="btn btn-warning btn-icon editar" data-id="${item.id}">Editar</button>
+                            <button class="btn btn-danger btn-icon eliminar" data-id="${item.id}">Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tablaBody.innerHTML = html;
+
+            // Actualizar clases de orden en los encabezados
+            ths.forEach(th => {
+                const col = th.dataset.columna;
+                th.classList.remove('asc', 'desc');
+                if (col === columnaOrden) {
+                    th.classList.add(direccionOrden);
+                }
+            });
+        }
+
+        // --- Función para reiniciar el formulario (modo agregar) ---
+        function resetFormulario() {
+            inputNombre.value = '';
+            inputCategoria.value = '';
+            inputAnio.value = '';
+            editandoId = null;
+            formTitle.innerText = '➕ Agregar nuevo elemento';
+            btnAgregar.innerText = 'Agregar';
+            btnCancelar.style.display = 'none';
+        }
+
+        // --- Función para cargar datos en el formulario (modo editar) ---
+        function cargarParaEditar(id) {
+            const item = datos.find(d => d.id === id);
+            if (!item) return;
+            inputNombre.value = item.nombre;
+            inputCategoria.value = item.categoria;
+            inputAnio.value = item.anio;
+            editandoId = id;
+            formTitle.innerText = '✏️ Editar elemento';
+            btnAgregar.innerText = 'Actualizar';
+            btnCancelar.style.display = 'inline-block';
+        }
+
+        // --- Evento: Agregar o actualizar ---
+        btnAgregar.addEventListener('click', () => {
+            const nombre = inputNombre.value.trim();
+            const categoria = inputCategoria.value.trim();
+            const anio = parseInt(inputAnio.value);
+
+            // Validaciones simples
+            if (!nombre || !categoria || isNaN(anio)) {
+                alert('Por favor completa todos los campos correctamente.');
+                return;
+            }
+
+            if (editandoId === null) {
+                // Agregar nuevo
+                const nuevoId = Date.now(); // generamos id único
+                datos.push({ id: nuevoId, nombre, categoria, anio });
+            } else {
+                // Actualizar existente
+                const index = datos.findIndex(d => d.id === editandoId);
+                if (index !== -1) {
+                    datos[index] = { ...datos[index], nombre, categoria, anio };
+                }
+            }
+
+            // Actualizar select de años (puede haber nuevos años)
+            actualizarSelectAnios();
+            // Volver a renderizar
+            renderizarTabla();
+            // Limpiar formulario
+            resetFormulario();
+        });
+
+        // --- Evento: Cancelar edición ---
+        btnCancelar.addEventListener('click', resetFormulario);
+
+        // --- Evento: Eliminar (delegación) ---
+        tablaBody.addEventListener('click', (e) => {
+            if (e.target.classList.contains('eliminar')) {
+                const id = parseInt(e.target.dataset.id);
+                if (confirm('¿Estás seguro de eliminar este elemento?')) {
+                    datos = datos.filter(d => d.id !== id);
+                    // Si estábamos editando ese elemento, cancelar edición
+                    if (editandoId === id) resetFormulario();
+                    actualizarSelectAnios();
+                    renderizarTabla();
+                }
+            }
+
+            if (e.target.classList.contains('editar')) {
+                const id = parseInt(e.target.dataset.id);
+                cargarParaEditar(id);
+            }
+        });
+
+        // --- Eventos de ordenación en los encabezados ---
+        ths.forEach(th => {
+            th.addEventListener('click', () => {
+                const columna = th.dataset.columna;
+                if (columna === columnaOrden) {
+                    // Cambiar dirección
+                    direccionOrden = direccionOrden === 'asc' ? 'desc' : 'asc';
+                } else {
+                    columnaOrden = columna;
+                    direccionOrden = 'asc';
+                }
+                renderizarTabla();
+            });
+        });
+
+        // --- Eventos de filtros ---
+        buscarInput.addEventListener('input', (e) => {
+            filtroTexto = e.target.value;
+            renderizarTabla();
+        });
+
+        filtroAnioSelect.addEventListener('change', (e) => {
+            filtroAnio = e.target.value;
+            renderizarTabla();
+        });
+
+        btnLimpiarFiltros.addEventListener('click', () => {
+            buscarInput.value = '';
+            filtroTexto = '';
+            filtroAnioSelect.value = 'todos';
+            filtroAnio = 'todos';
+            renderizarTabla();
+        });
+
+        // --- Inicialización ---
+        function inicializar() {
+            actualizarSelectAnios();
+            renderizarTabla();
+        }
+
+        inicializar();
+    </script>
+</body>
+
+</html>
